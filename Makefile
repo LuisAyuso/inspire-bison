@@ -15,4 +15,4 @@ tokens.cpp: scanner.l parser.hpp
 	lex -o $@ $^
 
 exec: parser.cpp main.cpp driver.cpp tokens.cpp
-	${CXX} -o $@ *.cpp
+	${CXX} -o $@ *.cpp --std=c++11

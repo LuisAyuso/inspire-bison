@@ -1,6 +1,7 @@
 #ifndef CALCXX_DRIVER_HH
 # define CALCXX_DRIVER_HH
 # include <string>
+# include <iostream>
 # include <map>
 # include "parser.hpp"
 
@@ -9,6 +10,18 @@
   yy::calcxx_parser::symbol_type yylex (calcxx_driver& driver)
 // ... and declare it for the parser's sake.
 YY_DECL;
+
+class scanner_wrapper
+{
+
+   scanner_wrapper(const std::string& str)
+   {
+   }
+
+   scanner_wrapper(const std::istream& str)
+   {
+   }
+};
 
 
 // Conducting the whole scanning and parsing of Calc++.
@@ -23,13 +36,14 @@ public:
   int result;
 
   // Handling the scanner.
-  void scan_begin ();
-  void scan_end ();
+  void scan_begin ();   // in scanner.l
+  void scan_end ();     // in scanner.l
   bool trace_scanning;
 
   // Run the parser on file F.
   // Return 0 on success.
   int parse (const std::string& f);
+  //int parse (const std::string)
 
   // The name of the file being parsed.
   // Used later to pass the file name to the location tracker.

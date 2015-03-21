@@ -10,6 +10,7 @@
 # include <string>
 class calcxx_driver;
 }
+
 // The parsing context.
 %param { calcxx_driver& driver }
 %locations
@@ -18,12 +19,14 @@ class calcxx_driver;
   // Initialize the initial location.
   @$.begin.filename = @$.end.filename = &driver.file;
 };
+
 %define parse.trace
 %define parse.error verbose
 %code
 {
-# include "driver.hpp"
+#include "driver.hpp"
 }
+
 %define api.token.prefix {TOK_}
 %token
   END  0  "end of file"
@@ -39,7 +42,9 @@ class calcxx_driver;
 %token <int> NUMBER "number"
 %type  <int> exp
 %printer { yyoutput << $$; } <*>;
+
 %%
+
 %start unit;
 unit: assignments exp  { driver.result = $2; };
 
@@ -60,7 +65,9 @@ exp:
 | "(" exp ")"   { std::swap ($$, $2); }
 | "identifier"  { $$ = driver.variables[$1]; }
 | "number"      { std::swap ($$, $1); };
+
 %%
+
 void yy::calcxx_parser::error (const location_type& l, const std::string& m) {
   driver.error (l, m);
 }
