@@ -2,7 +2,7 @@
 #include "parser.hpp"
 
 calcxx_driver::calcxx_driver (const std::string &f)
-  : scanner( new scanner_string(this, f)), file(f)
+  : scanner( new scanner_string(this, f)), file("std in")
 {
 }
 

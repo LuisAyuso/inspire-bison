@@ -12,10 +12,14 @@ void test(const std::string& x){
 
 int main (int argc, char *argv[])
 {
-
-    test("5 + 6");
-    test("456 + 6");
+//
+//    test("5 + 6");
+//    test("456 + 6");
+//    test("46 / 6");
+//
+    test("46 + / 6");
     test("46 / 6");
+    test("46 / 6 +");
 
   return 0;
 }

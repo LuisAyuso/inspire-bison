@@ -4,7 +4,7 @@
 all: exec
 
 clean:
-	@rm location.hh position.hh parser.cpp parser.hpp stack.hh tokens.cpp
+	@rm location.hh position.hh parser.cpp parser.hpp stack.hh tokens.cpp exec
 
 parser.cpp: parser.y
 	bison -d -o $@ $^

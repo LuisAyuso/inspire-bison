@@ -21,8 +21,9 @@ static yy::location loc;
 %option noyywrap nounput batch debug noinput
 
 
-id    [a-zA-Z][a-zA-Z_0-9]*
+id    [a-zA-Z][a-zA-Z0-9_]*
 int   [0-9]+
+float   [0-9]\.[0-9]+
 blank [ \t]
 
 %{
@@ -64,6 +65,7 @@ blank [ \t]
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
 void scanner_stdin::scan_begin(){
     yyin=stdin;
 }
@@ -76,6 +78,7 @@ void scanner_string::scan_begin(){
 }
 void scanner_string::scan_end(){
     yylex_destroy();
+    loc.initialize();
 }
 
 void scanner_file::scan_begin(){
@@ -85,8 +88,10 @@ void scanner_file::scan_begin(){
       driver->error ("cannot open " + file + ": " + strerror(errno));
       exit (EXIT_FAILURE);
     }
+    loc.initialize();
 }
 
 void scanner_file::scan_end(){
     fclose (yyin);
+    loc.initialize();
 }

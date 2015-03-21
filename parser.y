@@ -17,7 +17,7 @@ class calcxx_driver;
 %initial-action
 {
   // Initialize the initial location.
-  @$.begin.filename = @$.end.filename = &driver.file;
+  @$.initialize(&driver.file);
 };
 
 // DEBUG
