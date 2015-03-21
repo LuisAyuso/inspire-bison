@@ -1,25 +1,22 @@
 #include "driver.hpp"
 #include "parser.hpp"
 
-calcxx_driver::calcxx_driver ()
-  : trace_scanning (false), trace_parsing (false)
+calcxx_driver::calcxx_driver (const std::string &f)
+  : scanner( new scanner_string(this, f)), file(f)
 {
-  variables["one"] = 1;
-  variables["two"] = 2;
 }
 
 calcxx_driver::~calcxx_driver ()
 {
+    delete scanner;
 }
 
-int calcxx_driver::parse (const std::string &f)
+int calcxx_driver::parse ()
 {
-  file = f;
-  scan_begin ();
+  scanner->scan_begin ();
   yy::calcxx_parser parser (*this);
-  parser.set_debug_level (trace_parsing);
   int res = parser.parse ();
-  scan_end ();
+  scanner->scan_end ();
   return res;
 }
 

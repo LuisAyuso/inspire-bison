@@ -1,22 +1,22 @@
 #include <iostream>
 #include "driver.hpp"
 
+void test(const std::string& x){
+
+  calcxx_driver driver(x);
+  driver.parse();
+  std::cout << x  << " = " << driver.result << std::endl;
+
+}
+
 
 int main (int argc, char *argv[])
 {
-  int res = 0;
-  calcxx_driver driver;
-  
-  for (int i = 1; i < argc; ++i)
-    if (argv[i] == std::string ("-p"))
-      driver.trace_parsing = true;
-    else if (argv[i] == std::string ("-s"))
-      driver.trace_scanning = true;
-    else if (!driver.parse (argv[i]))
-      std::cout << driver.result << std::endl;
-    else
-      res = 1;
 
-  return res;
+    test("5 + 6");
+    test("456 + 6");
+    test("46 / 6");
+
+  return 0;
 }
 

@@ -20,7 +20,8 @@ class calcxx_driver;
   @$.begin.filename = @$.end.filename = &driver.file;
 };
 
-%define parse.trace
+// DEBUG
+//%define parse.trace
 %define parse.error verbose
 %code
 {

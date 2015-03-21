@@ -16,7 +16,11 @@
 // The location of the current token.
 static yy::location loc;
 %}
+
+
 %option noyywrap nounput batch debug noinput
+
+
 id    [a-zA-Z][a-zA-Z_0-9]*
 int   [0-9]+
 blank [ \t]
@@ -55,24 +59,34 @@ blank [ \t]
 {id}       return yy::calcxx_parser::make_IDENTIFIER(yytext, loc);
 .          driver.error (loc, "invalid character");
 <<EOF>>    return yy::calcxx_parser::make_END(loc);
+
 %%
 
-void calcxx_driver::scan_begin ()
-{
-  yy_flex_debug = trace_scanning;
-  if (file.empty () || file == "-")
-    yyin = stdin;
-  else if (!(yyin = fopen (file.c_str (), "r")))
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void scanner_stdin::scan_begin(){
+    yyin=stdin;
+}
+void scanner_stdin::scan_end(){
+}
+
+void scanner_string::scan_begin(){
+    yy_flex_debug = 0;
+    yy_scan_string(str.c_str());
+}
+void scanner_string::scan_end(){
+    yylex_destroy();
+}
+
+void scanner_file::scan_begin(){
+    yy_flex_debug = 0;
+    if (!(yyin = fopen (file.c_str (), "r")))
     {
-      error ("cannot open " + file + ": " + strerror(errno));
+      driver->error ("cannot open " + file + ": " + strerror(errno));
       exit (EXIT_FAILURE);
     }
 }
 
-
-
-void calcxx_driver::scan_end ()
-{
-  fclose (yyin);
+void scanner_file::scan_end(){
+    fclose (yyin);
 }
-
