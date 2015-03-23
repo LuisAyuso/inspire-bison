@@ -33,7 +33,7 @@ class calcxx_driver;
 %define api.token.prefix {TOK_}
 %token 
   END  0  "end of stream"
-  ASSIGN  ":="
+  ASSIGN  "="
   MINUS   "-"
   PLUS    "+"
   STAR    "*"
@@ -59,19 +59,35 @@ class calcxx_driver;
   COLON   ":"
   NAMESPACE   "::"
 
+  ARROW   "->"
+  DARROW  "=>"
+
   SEMIC   ";"
   COMA    ","
+  RANGE   ".."
   DOT     "."
-;
-%token <std::string> IDENTIFIER "identifier"
-%token <std::string> NUMBER "number"
 
+  LET   "let"    
+  AUTO   "auto"    
+  IF     "if"      
+  ELSE   "else"    
+  FOR    "for"     
+  WHILE  "while"   
+  RETURN "return"  
+;
+
+%token <std::string> IDENTIFIER "identifier"
+%token <std::string> INTEGER "integer"
+%token <std::string> REAL "real"
+
+%type  <NStatement*> program statement compound_statement
+%type  <NType*> type 
 %type  <NExpression*> expression unary_expression binary_expression ternary_expression
 %type  <std::vector<NExpression*> > expr_list
 %type  <std::vector<NStatement*> > statement_list
+%type  <std::vector<NType*> > type_list
 %type  <std::string> "Number" 
 %type  <std::string> "indentifier" 
-%type  <NStatement*> program statement compound_statement
 
 %printer { yyoutput << $$; } <*>;
 
@@ -81,19 +97,36 @@ class calcxx_driver;
 program : statement { $$ = $1; }
         ;
 
-statement : compound_statement { std::swap($$, $1); }
+type : IDENTIFIER { $$ = driver.nodeKeeper.getNode<NLitType>($1); }
+     | INTEGER { $$ = driver.nodeKeeper.getNode<NIntTypeParam>($1); }
+     | IDENTIFIER "<" type_list ">" { $$ = driver.nodeKeeper.getNode<NComposedType>($1, $3); }
+     | "(" type_list ")" "->" type { $$ = driver.nodeKeeper.getNode<NFuncType>($2, $5); }
+
+type_list : /* empty */ { }
+          | type  { $$.push_back($1); }
+          | type_list "," type  { $1.push_back($3); }
+
+let_binding : "let" IDENTIFIER "=" type { driver.scopes.add_symb($2, $4); }
+            ;
+
+statement : compound_statement { std::swap($$, $1); }   
+          | let_binding { }  /* a let binding is not a stmt, but we can find them in the same places :D */
+          | "for" "(" type IDENTIFIER "=" expression ".." expression  ")" statement { $$ = driver.nodeKeeper.getNode<NForLoop>($3, driver.nodeKeeper.getNode<NSynbolExpr>($4),$6,$8,$10); }
+          | "while" "(" expression ")"  statement { $$ = driver.nodeKeeper.getNode<NWhileLoop>($3,$5); }
           | expression ";" { $$ = $1; }
           ;
 
-compound_statement : "{" statement_list "}" { $$ = driver.nodeKeeper.getNode<NCompound>($2); }
 
-statement_list : /* empty */ { }
-               | statement   { $$.push_back($1); }
+compound_statement : "{" statement_list "}" { driver.scopes.close_scope(); $$ = driver.nodeKeeper.getNode<NCompound>($2); }
+
+statement_list : /* empty */ { driver.scopes.open_scope(); }
+               | statement   { driver.scopes.open_scope(); $$.push_back($1); }
                | statement_list ";" statement { $1.push_back($3); std::swap($$, $1); }
                ;
 
 expression : IDENTIFIER { $$ = driver.nodeKeeper.getNode<NSynbolExpr>($1); }
-           | NUMBER     { $$ = driver.nodeKeeper.getNode<NLiteralExpr>($1); }
+           | INTEGER     { $$ = driver.nodeKeeper.getNode<NLiteralExpr>($1); }
+           | REAL     { $$ = driver.nodeKeeper.getNode<NLiteralExpr>($1); }
            |"(" expression ")" { std::swap($$, $2); }
            | IDENTIFIER "(" expr_list ")" { $$ = driver.nodeKeeper.getNode<NCallExpr>(driver.nodeKeeper.getNode<NSynbolExpr>($1), $3); }
            | unary_expression  { $$ = $1; }
@@ -116,6 +149,7 @@ binary_expression : expression "*" expression { $$ = driver.nodeKeeper.getNode<N
                   | expression "+" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(SUM, $1, $3); }
                   | expression "-" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(SUB, $1, $3); }
                   | expression "%" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(MOD, $1, $3); }
+                  | expression "[" expression "]"  { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(SUBSCRIPT, $1, $3); }
                   ;
 
 ternary_expression : expression "?" expression ":" expression { $$ = driver.nodeKeeper.getNode<NTernaryExpr>($1, $3, $5); }

@@ -14,7 +14,6 @@ struct NNode{
 class NodeKeeper{
 
     std::vector<NNode*> container;
-
     NodeKeeper(const NodeKeeper&){}
 public:
     NodeKeeper(){}
@@ -34,13 +33,94 @@ public:
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-enum op_code{
-    SUM, SUB, MUL, DIV, DEREF, NOT, MOD, MINUS
+struct NType : public NNode{
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
 };
+
+struct NLitType : public NType{
+    std::string name;
+    NLitType(const std::string& name)
+    :name(name)
+    { }
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
+};
+
+struct NIntTypeParam : public NType{
+    std::string val;
+    NIntTypeParam(const std::string& val)
+    :val(val)
+    { }
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
+};
+
+struct NComposedType : public NType{
+    std::string name;
+    std::vector<NType*> tparams;
+    NComposedType(const std::string& name, const std::vector<NType*> tparams)
+    :name(name), tparams(tparams)
+    { }
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
+};
+
+struct NFuncType : public NType{
+    std::vector<NType*> tparams;
+    NType* ret;
+    NFuncType(const std::vector<NType*>& tparams, NType* ret)
+    :tparams(tparams), ret(ret)
+    { }
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
+};
+
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+enum op_code{
+    SUM, SUB, MUL, DIV, DEREF, NOT, MOD, MINUS, SUBSCRIPT, MEMBACCESS
+};
+
+class NExpression;
+class NSynbolExpr;
 
 struct NStatement : public NNode{
     virtual std::ostream& operator<< (std::ostream& ) =0;
     virtual ~NStatement (){}
+};
+
+struct NWhileLoop : public NStatement{
+
+    NExpression* cond;
+    NStatement* body;
+    NWhileLoop (NExpression* cond, NStatement* body)
+    :cond(cond), body(body)
+    { }
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
+};
+
+struct NForLoop : public NStatement{
+    NType* iteratorType;
+    NSynbolExpr* it;
+    NExpression* lbound;
+    NExpression* ubound;
+    NStatement* body;
+    NForLoop (NType* iteratorType, NSynbolExpr* it, NExpression* lbound, NExpression* ubound, NStatement* body)
+    : iteratorType(iteratorType), it(it), lbound(lbound), ubound(ubound), body(body)
+    { }
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
 };
 
 struct NCompound : public NStatement{
@@ -125,18 +205,26 @@ struct NTernaryExpr : public NExpression{
     }
 };
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 template <typename T, typename R = void>
 class Visitor : public T{
 
 public:
 
     R visit(NNode* n){
-    
+
+        if (dynamic_cast<NCompound*>(n)){
+            return static_cast<T*>(this)->visitNCompound(n);
+        }
         if (dynamic_cast<NLiteralExpr*>(n)){
             return static_cast<T*>(this)->visitNLiteralExpr(n);
         }
         if (dynamic_cast<NSynbolExpr*>(n)){
             return static_cast<T*>(this)->visitNSynbolExpr(n);
+        }
+        if (dynamic_cast<NCallExpr*>(n)){
+            return static_cast<T*>(this)->visitNCallExpr(n);
         }
         if (dynamic_cast<NUnaryExpr*>(n)){
             return static_cast<T*>(this)->visitNUnaryExpr(n);

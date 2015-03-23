@@ -29,7 +29,25 @@ int main (int argc, char *argv[])
     test("abd(.8, a);");
     test("f(43)?  abc_/45.6: 9*4 +3;");
 
+    test("for () { abc/45.6; }");
+    test("for (int a = 0 .. 45) { abc/45.6; }");
+    test("for (int a = .. 45) { abc/45.6; }");
+    test("for (int a  8.. 45) { abc/45.6; }");
+    test("for (int a =   8.. ) { abc/45.6; }");
+
+    test("for (int<vector<caca<4>>> a =   8.. ) { abc/45.6; }");
+    test("for (int<vector<caca<4>> a =   8.. ) { abc/45.6; }");
+    test("for (int<vector<caca<4>>> a =   8.. 67) { abc/45.6; }");
+
+    test("while (caca) { abc/45.6; }");
+    test("while () { abc/45.6; }");
+    test("while (6) abc/45.6; ");
+
+    test("let cacafuti = 5");
+    test("let cacafuti = int<5>");
+
     // fail
+    test("while (wer) abc/45.6 ");
     test("1abs;");
     test("46 + / 6;");
     test("46 / 6 +;");

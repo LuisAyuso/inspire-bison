@@ -67,18 +67,29 @@ blank [ \t]
 "::"      return yy::calcxx_parser::make_NAMESPACE(loc);
 ":"      return yy::calcxx_parser::make_COLON(loc);
 
+"->"     return yy::calcxx_parser::make_ARROW(loc);
+"=>"     return yy::calcxx_parser::make_DARROW(loc);
+
 ";"      return yy::calcxx_parser::make_SEMIC(loc);
 ","      return yy::calcxx_parser::make_COMA(loc);
+".."      return yy::calcxx_parser::make_RANGE(loc);
 "."      return yy::calcxx_parser::make_DOT(loc);
 
+"let"    return yy::calcxx_parser::make_LET(loc);
+"auto"    return yy::calcxx_parser::make_AUTO(loc);
+"if"      return yy::calcxx_parser::make_IF(loc);
+"else"    return yy::calcxx_parser::make_ELSE(loc);
+"for"     return yy::calcxx_parser::make_FOR(loc);
+"while"   return yy::calcxx_parser::make_WHILE(loc);
+"return"   return yy::calcxx_parser::make_RETURN(loc);
 
 
 {int}      {
-  return yy::calcxx_parser::make_NUMBER(yytext, loc);
+  return yy::calcxx_parser::make_INTEGER(yytext, loc);
 }
 
 {float}      {
-  return yy::calcxx_parser::make_NUMBER(yytext, loc);
+  return yy::calcxx_parser::make_REAL(yytext, loc);
 }
 
 {id}       return yy::calcxx_parser::make_IDENTIFIER(yytext, loc);
