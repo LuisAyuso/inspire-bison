@@ -4,6 +4,7 @@
 # include <cstdlib>
 # include <string>
 # include "driver.hpp"
+# include "nodes.hpp"
 # include "parser.hpp"
 
 // Work around an incompatibility in flex (at least versions
@@ -44,9 +45,28 @@ blank [ \t]
 "+"      return yy::calcxx_parser::make_PLUS(loc);
 "*"      return yy::calcxx_parser::make_STAR(loc);
 "/"      return yy::calcxx_parser::make_SLASH(loc);
+
 "("      return yy::calcxx_parser::make_LPAREN(loc);
 ")"      return yy::calcxx_parser::make_RPAREN(loc);
-":="     return yy::calcxx_parser::make_ASSIGN(loc);
+"{"      return yy::calcxx_parser::make_LCURBRACKET(loc);
+"}"      return yy::calcxx_parser::make_RCURBRACKET(loc);
+"["      return yy::calcxx_parser::make_LBRACKET(loc);
+"]"      return yy::calcxx_parser::make_RBRACKET(loc);
+
+"<"      return yy::calcxx_parser::make_LT(loc);
+">"      return yy::calcxx_parser::make_GT(loc);
+"<="     return yy::calcxx_parser::make_LEQ(loc);
+">="     return yy::calcxx_parser::make_GEQ(loc);
+"=="     return yy::calcxx_parser::make_EQ(loc);
+"!="     return yy::calcxx_parser::make_NEQ(loc);
+
+"!"      return yy::calcxx_parser::make_LNOT(loc);
+
+"="      return yy::calcxx_parser::make_ASSIGN(loc);
+"?"      return yy::calcxx_parser::make_QMARK(loc);
+":"      return yy::calcxx_parser::make_COLON(loc);
+";"      return yy::calcxx_parser::make_SEMIC(loc);
+
 
 
 {int}      {

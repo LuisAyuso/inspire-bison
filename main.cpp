@@ -20,6 +20,7 @@ int main (int argc, char *argv[])
     test("46 + / 6");
     test("46 / 6");
     test("46 / 6 +");
+    test("46?  abc: cde");
 
   return 0;
 }

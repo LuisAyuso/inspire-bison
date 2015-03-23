@@ -8,6 +8,7 @@
 %code requires
 {
 # include <string>
+# include "nodes.hpp"
 class calcxx_driver;
 }
 
@@ -26,46 +27,78 @@ class calcxx_driver;
 %code
 {
 #include "driver.hpp"
+#include "nodes.hpp"
 }
 
 %define api.token.prefix {TOK_}
-%token
+%token 
   END  0  "end of file"
   ASSIGN  ":="
   MINUS   "-"
   PLUS    "+"
   STAR    "*"
   SLASH   "/"
+
   LPAREN  "("
   RPAREN  ")"
+  LCURBRACKET  "{"
+  RCURBRACKET  "}"
+  LBRACKET  "["
+  RBRACKET  "]"
+
+  LT        "<"     
+  GT        ">"     
+  LEQ       "<="    
+  GEQ       ">="    
+  EQ        "=="    
+  NEQ       "!="    
+
+  LNOT      "!"
+                                         
+  QMARK   "?"
+  COLON   ":"
+  SEMIC   ";"
 ;
 %token <std::string> IDENTIFIER "identifier"
 %token <int> NUMBER "number"
-%type  <int> exp
+
+%type  <NExpression> expression binary_expression ternary_expression
+%type  <int> "Number" bin_op
+%type  <std::string> "indentifier" 
+%type  <NStatement> program statement
+
 %printer { yyoutput << $$; } <*>;
 
 %%
 
-%start unit;
-unit: assignments exp  { driver.result = $2; };
+%start program;
+program : statement { $$ = $1; }
+        ;
 
-assignments:
-  %empty                 {}
-| assignments assignment {};
+statement : expression { $$ = $1; }
+          ;
 
-assignment:
-  "identifier" ":=" exp { driver.variables[$1] = $3; };
+expression : IDENTIFIER { $$ = NSynbolExpr($1); }
+           | NUMBER     { $$ = NLiteralExpr($1); }
+           |"(" expression ")" { std::swap($$, $2); }
+           | binary_expression { $$ = $1; }
+           | ternary_expression { $$ = $1; }
+           ;
+
+binary_expression : expression bin_op expression { $$ = NBinaryExpr($2, $1, $3); }
+                  ;
+
+ternary_expression : expression "?" expression ":" expression { $$ = NTernaryExpr($1, $3, $5); }
+                   ;
+
+bin_op : "+" { $$ = 1; }
+       | "-" { $$ = 2; }
+       | "*" { $$ = 3; }
+       | "/" { $$ = 4; }
+       ;
 
 %left "+" "-";
 %left "*" "/";
-exp:
-  exp "+" exp   { $$ = $1 + $3; }
-| exp "-" exp   { $$ = $1 - $3; }
-| exp "*" exp   { $$ = $1 * $3; }
-| exp "/" exp   { $$ = $1 / $3; }
-| "(" exp ")"   { std::swap ($$, $2); }
-| "identifier"  { $$ = driver.variables[$1]; }
-| "number"      { std::swap ($$, $1); };
 
 %%
 

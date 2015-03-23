@@ -1,4 +1,5 @@
 #include "driver.hpp"
+#include "nodes.hpp"
 #include "parser.hpp"
 
 calcxx_driver::calcxx_driver (const std::string &f)

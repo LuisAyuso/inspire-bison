@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 
+#include "nodes.hpp"
 #include "parser.hpp"
 #include "scanner.h"
 
