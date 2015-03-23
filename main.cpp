@@ -1,26 +1,24 @@
 #include <iostream>
 #include "driver.hpp"
+#include "nodes.hpp"
+
+
+
 
 void test(const std::string& x){
-
-  calcxx_driver driver(x);
-  driver.parse();
-  std::cout << x  << " = " << driver.result << std::endl;
-
+    NodeKeeper nk;
+    calcxx_driver driver(x, nk);
+    driver.parse();
 }
-
 
 int main (int argc, char *argv[])
 {
-//
-//    test("5 + 6");
-//    test("456 + 6");
-//    test("46 / 6");
-//
+
     test("46 + / 6");
     test("46 / 6");
     test("46 / 6 +");
     test("46?  abc: cde");
+    test("a * *abc");
 
   return 0;
 }

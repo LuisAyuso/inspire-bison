@@ -2,8 +2,8 @@
 #include "nodes.hpp"
 #include "parser.hpp"
 
-calcxx_driver::calcxx_driver (const std::string &f)
-  : scanner( new scanner_string(this, f)), file("std in")
+calcxx_driver::calcxx_driver (const std::string &f, NodeKeeper& nk)
+  : scanner( new scanner_string(this, f)),  nodeKeeper(nk), file("no-file"), str(f)
 {
 }
 
@@ -24,6 +24,7 @@ int calcxx_driver::parse ()
 void calcxx_driver::error (const yy::location& l, const std::string& m)
 {
   std::cerr << l << ": " << m << std::endl;
+  std::cerr << "  => " << str << std::endl;
 }
 
 void calcxx_driver::error (const std::string& m)

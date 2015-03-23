@@ -20,22 +20,17 @@ YY_DECL;
 class calcxx_driver
 {
     scanner_wrapper* scanner;    
-
 public:
-  calcxx_driver (const std::string& f);
+  calcxx_driver (const std::string& f, NodeKeeper& nk);
   virtual ~calcxx_driver ();
 
-  std::map<std::string, int> variables;
-
+  NodeKeeper& nodeKeeper;
+  std::string file;
+  const std::string& str;       
   int result;
 
-  // Run the parser on file F.
-  // Return 0 on success.
   int parse ();
 
-  // The name of the file being parsed.
-  // Used later to pass the file name to the location tracker.
-  std::string file;
 
   // Error handling.
   void error (const yy::location& l, const std::string& m);

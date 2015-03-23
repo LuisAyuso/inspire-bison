@@ -62,10 +62,10 @@ class calcxx_driver;
 %token <std::string> IDENTIFIER "identifier"
 %token <int> NUMBER "number"
 
-%type  <NExpression> expression binary_expression ternary_expression
-%type  <int> "Number" bin_op
+%type  <NExpression*> expression unary_expression binary_expression ternary_expression
+%type  <int> "Number" 
 %type  <std::string> "indentifier" 
-%type  <NStatement> program statement
+%type  <NStatement*> program statement
 
 %printer { yyoutput << $$; } <*>;
 
@@ -78,24 +78,26 @@ program : statement { $$ = $1; }
 statement : expression { $$ = $1; }
           ;
 
-expression : IDENTIFIER { $$ = NSynbolExpr($1); }
-           | NUMBER     { $$ = NLiteralExpr($1); }
+expression : IDENTIFIER { $$ = driver.nodeKeeper.getNode<NSynbolExpr>($1); }
+           | NUMBER     { $$ = driver.nodeKeeper.getNode<NLiteralExpr>($1); }
            |"(" expression ")" { std::swap($$, $2); }
+           | unary_expression  { $$ = $1; }
            | binary_expression { $$ = $1; }
            | ternary_expression { $$ = $1; }
            ;
 
-binary_expression : expression bin_op expression { $$ = NBinaryExpr($2, $1, $3); }
+unary_expression : "!" expression  { $$ = driver.nodeKeeper.getNode<NUnaryExpr>(1, $2); }
+                  | "*" expression  { $$ = driver.nodeKeeper.getNode<NUnaryExpr>(2, $2); }
                   ;
 
-ternary_expression : expression "?" expression ":" expression { $$ = NTernaryExpr($1, $3, $5); }
-                   ;
+binary_expression : expression "+" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(1, $1, $3); }
+                  | expression "-" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(2, $1, $3); }
+                  | expression "*" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(3, $1, $3); }
+                  | expression "/" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(4, $1, $3); }
+                  ;
 
-bin_op : "+" { $$ = 1; }
-       | "-" { $$ = 2; }
-       | "*" { $$ = 3; }
-       | "/" { $$ = 4; }
-       ;
+ternary_expression : expression "?" expression ":" expression { $$ = driver.nodeKeeper.getNode<NTernaryExpr>($1, $3, $5); }
+                   ;
 
 %left "+" "-";
 %left "*" "/";
