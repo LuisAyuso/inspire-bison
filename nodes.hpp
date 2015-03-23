@@ -32,12 +32,26 @@ public:
     }
 };
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+enum op_code{
+    SUM, SUB, MUL, DIV, DEREF, NOT, MOD, MINUS
+};
 
 struct NStatement : public NNode{
     virtual std::ostream& operator<< (std::ostream& ) =0;
     virtual ~NStatement (){}
 };
 
+struct NCompound : public NStatement{
+    std::vector<NStatement*> stms;
+    NCompound(const std::vector<NStatement*>& stmts)
+    :  stms(stmts.begin(), stmts.end())
+    {}
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
+};
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 struct NExpression : public NStatement{
@@ -46,8 +60,8 @@ struct NExpression : public NStatement{
 };
 
 struct NLiteralExpr : public NExpression{
-    int val;
-    NLiteralExpr(int value)
+    std::string val;
+    NLiteralExpr(const std::string& value)
     :val (value){
     }
     virtual std::ostream& operator<< (std::ostream& os) {
@@ -65,10 +79,21 @@ struct NSynbolExpr : public NExpression{
     }
 };
 
+struct NCallExpr : public NExpression{
+    NExpression* func;
+    std::vector<NExpression*> args;
+    NCallExpr(NExpression* func, const std::vector<NExpression*>& args)
+    : func(func), args(args.begin(), args.end())
+    {}
+    virtual std::ostream& operator<< (std::ostream& os) {
+        return os;
+    }
+};
+
 struct NUnaryExpr : public NExpression{
-    int op;
+    op_code op;
     NExpression* expr;
-    NUnaryExpr(int op, NExpression* expr)
+    NUnaryExpr(op_code op, NExpression* expr)
     : op(op), expr(expr)
     {}
     virtual std::ostream& operator<< (std::ostream& os) {
@@ -77,10 +102,10 @@ struct NUnaryExpr : public NExpression{
 };
 
 struct NBinaryExpr : public NExpression{
-    int op;
+    op_code op;
     NExpression *left;
     NExpression *right;
-    NBinaryExpr(int op, NExpression* left, NExpression* right)
+    NBinaryExpr(op_code op, NExpression* left, NExpression* right)
     : op(op), left(left), right(right)
     {}
     virtual std::ostream& operator<< (std::ostream& os) {

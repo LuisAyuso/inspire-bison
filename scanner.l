@@ -22,9 +22,9 @@ static yy::location loc;
 %option noyywrap nounput batch debug noinput
 
 
-id    [a-zA-Z][a-zA-Z0-9_]*
+id    [a-zA-Z_][a-zA-Z0-9_]*
+float   [0-9]*"."[0-9]+
 int   [0-9]+
-float   [0-9]\.[0-9]+
 blank [ \t]
 
 %{
@@ -64,17 +64,21 @@ blank [ \t]
 
 "="      return yy::calcxx_parser::make_ASSIGN(loc);
 "?"      return yy::calcxx_parser::make_QMARK(loc);
+"::"      return yy::calcxx_parser::make_NAMESPACE(loc);
 ":"      return yy::calcxx_parser::make_COLON(loc);
+
 ";"      return yy::calcxx_parser::make_SEMIC(loc);
+","      return yy::calcxx_parser::make_COMA(loc);
+"."      return yy::calcxx_parser::make_DOT(loc);
 
 
 
 {int}      {
-  errno = 0;
-  long n = strtol (yytext, NULL, 10);
-  if (! (INT_MIN <= n && n <= INT_MAX && errno != ERANGE))
-    driver.error (loc, "integer is out of range");
-  return yy::calcxx_parser::make_NUMBER(n, loc);
+  return yy::calcxx_parser::make_NUMBER(yytext, loc);
+}
+
+{float}      {
+  return yy::calcxx_parser::make_NUMBER(yytext, loc);
 }
 
 {id}       return yy::calcxx_parser::make_IDENTIFIER(yytext, loc);

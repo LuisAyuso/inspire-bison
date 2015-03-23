@@ -24,7 +24,19 @@ int calcxx_driver::parse ()
 void calcxx_driver::error (const yy::location& l, const std::string& m)
 {
   std::cerr << l << ": " << m << std::endl;
+  int lineb = l.begin.line;
+  int linee = l.end.line;
+  int colb = l.begin.column;
+  int cole = l.end.column;
+
+  //TODO: multiline?
+
   std::cerr << "  => " << str << std::endl;
+  std::cerr << "     ";
+  for (int i =0; i < colb-1; ++i) std::cerr << " ";
+  std::cerr << "^";
+  for (int i =0; i < cole - colb; ++i) std::cerr << "~";
+  std::cerr << std::endl;
 }
 
 void calcxx_driver::error (const std::string& m)

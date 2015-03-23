@@ -32,7 +32,7 @@ class calcxx_driver;
 
 %define api.token.prefix {TOK_}
 %token 
-  END  0  "end of file"
+  END  0  "end of stream"
   ASSIGN  ":="
   MINUS   "-"
   PLUS    "+"
@@ -57,15 +57,21 @@ class calcxx_driver;
                                          
   QMARK   "?"
   COLON   ":"
+  NAMESPACE   "::"
+
   SEMIC   ";"
+  COMA    ","
+  DOT     "."
 ;
 %token <std::string> IDENTIFIER "identifier"
-%token <int> NUMBER "number"
+%token <std::string> NUMBER "number"
 
 %type  <NExpression*> expression unary_expression binary_expression ternary_expression
-%type  <int> "Number" 
+%type  <std::vector<NExpression*> > expr_list
+%type  <std::vector<NStatement*> > statement_list
+%type  <std::string> "Number" 
 %type  <std::string> "indentifier" 
-%type  <NStatement*> program statement
+%type  <NStatement*> program statement compound_statement
 
 %printer { yyoutput << $$; } <*>;
 
@@ -75,25 +81,41 @@ class calcxx_driver;
 program : statement { $$ = $1; }
         ;
 
-statement : expression { $$ = $1; }
+statement : compound_statement { std::swap($$, $1); }
+          | expression ";" { $$ = $1; }
           ;
+
+compound_statement : "{" statement_list "}" { $$ = driver.nodeKeeper.getNode<NCompound>($2); }
+
+statement_list : /* empty */ { }
+               | statement   { $$.push_back($1); }
+               | statement_list ";" statement { $1.push_back($3); std::swap($$, $1); }
+               ;
 
 expression : IDENTIFIER { $$ = driver.nodeKeeper.getNode<NSynbolExpr>($1); }
            | NUMBER     { $$ = driver.nodeKeeper.getNode<NLiteralExpr>($1); }
            |"(" expression ")" { std::swap($$, $2); }
+           | IDENTIFIER "(" expr_list ")" { $$ = driver.nodeKeeper.getNode<NCallExpr>(driver.nodeKeeper.getNode<NSynbolExpr>($1), $3); }
            | unary_expression  { $$ = $1; }
            | binary_expression { $$ = $1; }
            | ternary_expression { $$ = $1; }
            ;
 
-unary_expression : "!" expression  { $$ = driver.nodeKeeper.getNode<NUnaryExpr>(1, $2); }
-                  | "*" expression  { $$ = driver.nodeKeeper.getNode<NUnaryExpr>(2, $2); }
+expr_list : /* empty */{ }
+          | expression { $$.push_back($1); }
+          | expr_list "," expression { $1.push_back($3); std::swap($$, $1); }
+          ;
+
+unary_expression : "!" expression  { $$ = driver.nodeKeeper.getNode<NUnaryExpr>(NOT, $2); }
+                  | "*" expression  { $$ = driver.nodeKeeper.getNode<NUnaryExpr>(DEREF, $2); }
+                  | "-" expression  { $$ = driver.nodeKeeper.getNode<NUnaryExpr>(MINUS, $2); }
                   ;
 
-binary_expression : expression "+" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(1, $1, $3); }
-                  | expression "-" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(2, $1, $3); }
-                  | expression "*" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(3, $1, $3); }
-                  | expression "/" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(4, $1, $3); }
+binary_expression : expression "*" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(MUL, $1, $3); }
+                  | expression "/" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(DIV, $1, $3); }
+                  | expression "+" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(SUM, $1, $3); }
+                  | expression "-" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(SUB, $1, $3); }
+                  | expression "%" expression { $$ = driver.nodeKeeper.getNode<NBinaryExpr>(MOD, $1, $3); }
                   ;
 
 ternary_expression : expression "?" expression ":" expression { $$ = driver.nodeKeeper.getNode<NTernaryExpr>($1, $3, $5); }
