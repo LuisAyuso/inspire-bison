@@ -15,7 +15,7 @@
 # define yywrap() 1
 
 // The location of the current token.
-static yy::location loc;
+static insieme::core::parser3::location loc;
 %}
 
 
@@ -41,65 +41,67 @@ blank [ \t]
 
 {blank}+   loc.step ();
 [\n]+      loc.lines (yyleng); loc.step ();
-"-"      return yy::calcxx_parser::make_MINUS(loc);
-"+"      return yy::calcxx_parser::make_PLUS(loc);
-"*"      return yy::calcxx_parser::make_STAR(loc);
-"/"      return yy::calcxx_parser::make_SLASH(loc);
+"-"      return insieme::core::parser3::inspire_parser::make_MINUS(loc);
+"+"      return insieme::core::parser3::inspire_parser::make_PLUS(loc);
+"*"      return insieme::core::parser3::inspire_parser::make_STAR(loc);
+"/"      return insieme::core::parser3::inspire_parser::make_SLASH(loc);
 
-"("      return yy::calcxx_parser::make_LPAREN(loc);
-")"      return yy::calcxx_parser::make_RPAREN(loc);
-"{"      return yy::calcxx_parser::make_LCURBRACKET(loc);
-"}"      return yy::calcxx_parser::make_RCURBRACKET(loc);
-"["      return yy::calcxx_parser::make_LBRACKET(loc);
-"]"      return yy::calcxx_parser::make_RBRACKET(loc);
+"("      return insieme::core::parser3::inspire_parser::make_LPAREN(loc);
+")"      return insieme::core::parser3::inspire_parser::make_RPAREN(loc);
+"{"      return insieme::core::parser3::inspire_parser::make_LCURBRACKET(loc);
+"}"      return insieme::core::parser3::inspire_parser::make_RCURBRACKET(loc);
+"["      return insieme::core::parser3::inspire_parser::make_LBRACKET(loc);
+"]"      return insieme::core::parser3::inspire_parser::make_RBRACKET(loc);
 
-"<"      return yy::calcxx_parser::make_LT(loc);
-">"      return yy::calcxx_parser::make_GT(loc);
-"<="     return yy::calcxx_parser::make_LEQ(loc);
-">="     return yy::calcxx_parser::make_GEQ(loc);
-"=="     return yy::calcxx_parser::make_EQ(loc);
-"!="     return yy::calcxx_parser::make_NEQ(loc);
+"<"      return insieme::core::parser3::inspire_parser::make_LT(loc);
+">"      return insieme::core::parser3::inspire_parser::make_GT(loc);
+"<="     return insieme::core::parser3::inspire_parser::make_LEQ(loc);
+">="     return insieme::core::parser3::inspire_parser::make_GEQ(loc);
+"=="     return insieme::core::parser3::inspire_parser::make_EQ(loc);
+"!="     return insieme::core::parser3::inspire_parser::make_NEQ(loc);
 
-"!"      return yy::calcxx_parser::make_LNOT(loc);
+"!"      return insieme::core::parser3::inspire_parser::make_LNOT(loc);
 
-"="      return yy::calcxx_parser::make_ASSIGN(loc);
-"?"      return yy::calcxx_parser::make_QMARK(loc);
-"::"      return yy::calcxx_parser::make_NAMESPACE(loc);
-":"      return yy::calcxx_parser::make_COLON(loc);
+"="      return insieme::core::parser3::inspire_parser::make_ASSIGN(loc);
+"?"      return insieme::core::parser3::inspire_parser::make_QMARK(loc);
+"::"      return insieme::core::parser3::inspire_parser::make_NAMESPACE(loc);
+":"      return insieme::core::parser3::inspire_parser::make_COLON(loc);
 
-"->"     return yy::calcxx_parser::make_ARROW(loc);
-"=>"     return yy::calcxx_parser::make_DARROW(loc);
+"->"     return insieme::core::parser3::inspire_parser::make_ARROW(loc);
+"=>"     return insieme::core::parser3::inspire_parser::make_DARROW(loc);
 
-";"      return yy::calcxx_parser::make_SEMIC(loc);
-","      return yy::calcxx_parser::make_COMA(loc);
-".."      return yy::calcxx_parser::make_RANGE(loc);
-"."      return yy::calcxx_parser::make_DOT(loc);
+";"      return insieme::core::parser3::inspire_parser::make_SEMIC(loc);
+","      return insieme::core::parser3::inspire_parser::make_COMA(loc);
+".."      return insieme::core::parser3::inspire_parser::make_RANGE(loc);
+"."      return insieme::core::parser3::inspire_parser::make_DOT(loc);
 
-"let"    return yy::calcxx_parser::make_LET(loc);
-"auto"    return yy::calcxx_parser::make_AUTO(loc);
-"if"      return yy::calcxx_parser::make_IF(loc);
-"else"    return yy::calcxx_parser::make_ELSE(loc);
-"for"     return yy::calcxx_parser::make_FOR(loc);
-"while"   return yy::calcxx_parser::make_WHILE(loc);
-"return"   return yy::calcxx_parser::make_RETURN(loc);
+"let"    return insieme::core::parser3::inspire_parser::make_LET(loc);
+"auto"    return insieme::core::parser3::inspire_parser::make_AUTO(loc);
+"if"      return insieme::core::parser3::inspire_parser::make_IF(loc);
+"else"    return insieme::core::parser3::inspire_parser::make_ELSE(loc);
+"for"     return insieme::core::parser3::inspire_parser::make_FOR(loc);
+"while"   return insieme::core::parser3::inspire_parser::make_WHILE(loc);
+"return"   return insieme::core::parser3::inspire_parser::make_RETURN(loc);
 
 
 {int}      {
-  return yy::calcxx_parser::make_INTEGER(yytext, loc);
+  return insieme::core::parser3::inspire_parser::make_INTEGER(yytext, loc);
 }
 
 {float}      {
-  return yy::calcxx_parser::make_REAL(yytext, loc);
+  return insieme::core::parser3::inspire_parser::make_REAL(yytext, loc);
 }
 
-{id}       return yy::calcxx_parser::make_IDENTIFIER(yytext, loc);
+{id}       return insieme::core::parser3::inspire_parser::make_IDENTIFIER(yytext, loc);
 .          driver.error (loc, "invalid character");
-<<EOF>>    return yy::calcxx_parser::make_END(loc);
+<<EOF>>    return insieme::core::parser3::inspire_parser::make_END(loc);
 
 %%
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+namespace insieme{
+namespace core{
+namespace parser3{
 
 void scanner_stdin::scan_begin(){
     yyin=stdin;
@@ -130,3 +132,7 @@ void scanner_file::scan_end(){
     fclose (yyin);
     loc.initialize();
 }
+
+} // parser3 namespace
+} // core namespace
+} // insieme namespace

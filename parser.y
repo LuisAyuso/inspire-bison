@@ -1,19 +1,26 @@
 %skeleton "lalr1.cc" /* -*- C++ -*- */
 %require "3.0.4"
 %defines
-%define parser_class_name {calcxx_parser}
+%define parser_class_name {inspire_parser}
+%define api.namespace {insieme::core::parser3}
 %define api.token.constructor
 %define api.value.type variant
 %define parse.assert
 %code requires
 {
-# include <string>
-# include "nodes.hpp"
-class calcxx_driver;
+    # include <string>
+    # include "nodes.hpp"
+    namespace insieme{
+    namespace core{
+    namespace parser3{
+    class inspire_driver;
+    } // parser3
+    } // core
+    } // insieme
 }
 
 // The parsing context.
-%param { calcxx_driver& driver }
+%param { insieme::core::parser3::inspire_driver& driver }
 %locations
 %initial-action
 {
@@ -201,6 +208,6 @@ ternary_expression : expression "?" expression ":" expression { $$ = driver.node
 
 %%
 
-void yy::calcxx_parser::error (const location_type& l, const std::string& m) {
+void insieme::core::parser3::inspire_parser::error (const location_type& l, const std::string& m) {
   driver.error (l, m);
 }

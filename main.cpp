@@ -2,9 +2,11 @@
 #include "driver.hpp"
 #include "nodes.hpp"
 
+using namespace insieme::core::parser3;
+
 void test(const std::string& x){
     NodeKeeper nk;
-    calcxx_driver driver(x, nk);
+    inspire_driver driver(x, nk);
     driver.parse();
     if (driver.result) driver.result->print(std::cout, "| ");
     else std::cout << "ERROR";

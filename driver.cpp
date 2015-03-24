@@ -2,26 +2,31 @@
 #include "nodes.hpp"
 #include "parser.hpp"
 
-calcxx_driver::calcxx_driver (const std::string &f, NodeKeeper& nk)
+namespace insieme{
+namespace core{
+namespace parser3{
+
+
+inspire_driver::inspire_driver (const std::string &f, NodeKeeper& nk)
   : scanner( new scanner_string(this, f)),  nodeKeeper(nk), file("no-file"), str(f), result(nullptr)
 {
 }
 
-calcxx_driver::~calcxx_driver ()
+inspire_driver::~inspire_driver ()
 {
     delete scanner;
 }
 
-int calcxx_driver::parse ()
+int inspire_driver::parse ()
 {
   scanner->scan_begin ();
-  yy::calcxx_parser parser (*this);
+  inspire_parser parser (*this);
   int res = parser.parse ();
   scanner->scan_end ();
   return res;
 }
 
-void calcxx_driver::error (const yy::location& l, const std::string& m)
+void inspire_driver::error (const location& l, const std::string& m)
 {
   std::cerr << l << ": " << m << std::endl;
   int lineb = l.begin.line;
@@ -39,7 +44,11 @@ void calcxx_driver::error (const yy::location& l, const std::string& m)
   std::cerr << std::endl;
 }
 
-void calcxx_driver::error (const std::string& m)
+void inspire_driver::error (const std::string& m)
 {
   std::cerr << m << std::endl;
 }
+
+} // namespace parser3
+} // namespace core
+} // namespace insieme

@@ -1,10 +1,16 @@
-class calcxx_driver;
+#pragma once
+
+namespace insieme{
+namespace core{
+namespace parser3{
+
+class inspire_driver;
 
 class scanner_wrapper
 {
 public:
-    calcxx_driver* driver;
-    scanner_wrapper(calcxx_driver* driver)
+    inspire_driver* driver;
+    scanner_wrapper(inspire_driver* driver)
     : driver(driver)
     {}
     virtual void scan_begin() =0;
@@ -15,7 +21,7 @@ public:
 
 class scanner_stdin : public scanner_wrapper{
 public:
-    scanner_stdin(calcxx_driver* driver)
+    scanner_stdin(inspire_driver* driver)
     :scanner_wrapper(driver)
     { }
     void scan_begin();
@@ -25,7 +31,7 @@ public:
 class scanner_string : public scanner_wrapper{
     const std::string& str;
 public:
-    scanner_string(calcxx_driver* driver, const std::string& str)
+    scanner_string(inspire_driver* driver, const std::string& str)
     :scanner_wrapper(driver), str(str)
     { }
     void scan_begin();
@@ -34,10 +40,13 @@ public:
 class scanner_file : public scanner_wrapper{
     const std::string& file;
 public:
-    scanner_file(calcxx_driver* driver, const std::string& file)
+    scanner_file(inspire_driver* driver, const std::string& file)
     :scanner_wrapper(driver), file(file)
     { }
     void scan_begin();
     void scan_end();
 };
 
+} // namespace parser3
+} // namespace core
+} // namespace insieme

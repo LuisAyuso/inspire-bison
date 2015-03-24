@@ -1,6 +1,5 @@
 #pragma once
-#ifndef CALCXX_DRIVER_HH
-#define CALCXX_DRIVER_HH
+
 #include <string>
 #include <iostream>
 #include <map>
@@ -9,13 +8,18 @@
 #include "parser.hpp"
 #include "scanner.h"
 
+
 // FLex is still a primitive tool using macros:
 // Tell Flex the lexer's prototype ...
 # define YY_DECL \
-  yy::calcxx_parser::symbol_type yylex (calcxx_driver& driver)
+  insieme::core::parser3::inspire_parser::symbol_type yylex (insieme::core::parser3::inspire_driver& driver)
 // ... and declare it for the parser's sake.
 YY_DECL;
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+namespace insieme{
+namespace core{
+namespace parser3{
 
 
 /**
@@ -54,12 +58,12 @@ public:
 
 
 // Conducting the whole scanning and parsing of Calc++.
-class calcxx_driver
+class inspire_driver
 {
     scanner_wrapper* scanner;    
 public:
-    calcxx_driver (const std::string& f, NodeKeeper& nk);
-    virtual ~calcxx_driver ();
+    inspire_driver (const std::string& f, NodeKeeper& nk);
+    virtual ~inspire_driver ();
 
     NodeKeeper& nodeKeeper;
     std::string file;
@@ -71,7 +75,10 @@ public:
     int parse ();
 
     // Error handling.
-    void error (const yy::location& l, const std::string& m);
+    void error (const location& l, const std::string& m);
     void error (const std::string& m);
 };
-#endif // ! CALCXX_DRIVER_HH
+
+} // namespace parser3
+} // namespace core
+} // namespace insieme
