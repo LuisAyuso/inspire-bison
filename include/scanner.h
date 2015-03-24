@@ -6,6 +6,9 @@ namespace parser3{
 
 class inspire_driver;
 
+/**
+ *  the scanner wrapper is an interface to implement differen inputs for the scanner
+ */
 class scanner_wrapper
 {
 public:
@@ -19,6 +22,9 @@ public:
     virtual ~scanner_wrapper(){}
 };
 
+/**
+ * scanner stdin reads from the standar imput
+ */
 class scanner_stdin : public scanner_wrapper{
 public:
     scanner_stdin(inspire_driver* driver)
@@ -28,6 +34,9 @@ public:
     void scan_end();
 };
 
+/**
+ * scanner string reads from a c++ string
+ */
 class scanner_string : public scanner_wrapper{
     const std::string& str;
 public:
@@ -37,6 +46,10 @@ public:
     void scan_begin();
     void scan_end();
 };
+
+/**
+ * scanner file reads from a file descriptor, the stream is managed by flex, like it or not
+ */
 class scanner_file : public scanner_wrapper{
     const std::string& file;
 public:
