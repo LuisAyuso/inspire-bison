@@ -14,5 +14,5 @@ parser.hpp: parser.cpp
 tokens.cpp: scanner.l parser.hpp
 	lex -o $@ $^
 
-exec: parser.cpp main.cpp driver.cpp tokens.cpp nodes.hpp driver.hpp
+exec: parser.cpp main.cpp driver.cpp tokens.cpp nodes.cpp nodes.hpp driver.hpp
 	${CXX} -o $@ *.cpp  -g --std=c++11 -Wno-deprecated-register

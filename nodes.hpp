@@ -5,9 +5,11 @@
 #include<cassert>
 #include<vector>
 
+#include "location.hh"
+
 struct NNode{
     
-    virtual std::ostream& operator<< (std::ostream& ) =0;
+    virtual std::ostream& print(std::ostream& , const std::string& prefix) const=0;
     virtual ~NNode (){}
 };
 
@@ -34,9 +36,7 @@ public:
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 struct NType : public NNode{
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix)const = 0;
 };
 
 struct NLitType : public NType{
@@ -44,9 +44,7 @@ struct NLitType : public NType{
     NLitType(const std::string& name)
     :name(name)
     { }
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix)const;
 };
 
 struct NIntTypeParam : public NType{
@@ -54,9 +52,7 @@ struct NIntTypeParam : public NType{
     NIntTypeParam(const std::string& val)
     :val(val)
     { }
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix)const;
 };
 
 struct NComposedType : public NType{
@@ -65,9 +61,7 @@ struct NComposedType : public NType{
     NComposedType(const std::string& name, const std::vector<NType*> tparams)
     :name(name), tparams(tparams)
     { }
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix)const ;
 };
 
 struct NFuncType : public NType{
@@ -76,9 +70,7 @@ struct NFuncType : public NType{
     NFuncType(const std::vector<NType*>& tparams, NType* ret)
     :tparams(tparams), ret(ret)
     { }
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 
 
@@ -88,12 +80,13 @@ struct NFuncType : public NType{
 enum op_code{
     SUM, SUB, MUL, DIV, DEREF, NOT, MOD, MINUS, SUBSCRIPT, MEMBACCESS
 };
+std::ostream& operator<< (std::ostream& out, const op_code& code);
 
 class NExpression;
 class NSynbolExpr;
 
 struct NStatement : public NNode{
-    virtual std::ostream& operator<< (std::ostream& ) =0;
+    virtual std::ostream& print (std::ostream& , const std::string& prefix) const =0;
     virtual ~NStatement (){}
 };
 
@@ -104,9 +97,7 @@ struct NWhileLoop : public NStatement{
     NWhileLoop (NExpression* cond, NStatement* body)
     :cond(cond), body(body)
     { }
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix)const;
 };
 
 struct NForLoop : public NStatement{
@@ -118,24 +109,21 @@ struct NForLoop : public NStatement{
     NForLoop (NType* iteratorType, NSynbolExpr* it, NExpression* lbound, NExpression* ubound, NStatement* body)
     : iteratorType(iteratorType), it(it), lbound(lbound), ubound(ubound), body(body)
     { }
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 
 struct NCompound : public NStatement{
-    std::vector<NStatement*> stms;
+    std::vector<NStatement*> stmts;
+    NCompound() {}
     NCompound(const std::vector<NStatement*>& stmts)
-    :  stms(stmts.begin(), stmts.end())
+    :  stmts(stmts.begin(), stmts.end())
     {}
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 struct NExpression : public NStatement{
-    virtual std::ostream& operator<< (std::ostream& ) =0;
+    virtual std::ostream& print (std::ostream& , const std::string& prefix) const=0;
     virtual ~NExpression (){}
 };
 
@@ -144,19 +132,15 @@ struct NLiteralExpr : public NExpression{
     NLiteralExpr(const std::string& value)
     :val (value){
     }
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 
 struct NSynbolExpr : public NExpression{
-    std::string val;
+    std::string name;
     NSynbolExpr(const std::string sym)
-    : val(sym)
+    : name(sym)
     {}
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 
 struct NCallExpr : public NExpression{
@@ -165,9 +149,7 @@ struct NCallExpr : public NExpression{
     NCallExpr(NExpression* func, const std::vector<NExpression*>& args)
     : func(func), args(args.begin(), args.end())
     {}
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 
 struct NUnaryExpr : public NExpression{
@@ -176,9 +158,7 @@ struct NUnaryExpr : public NExpression{
     NUnaryExpr(op_code op, NExpression* expr)
     : op(op), expr(expr)
     {}
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 
 struct NBinaryExpr : public NExpression{
@@ -188,9 +168,7 @@ struct NBinaryExpr : public NExpression{
     NBinaryExpr(op_code op, NExpression* left, NExpression* right)
     : op(op), left(left), right(right)
     {}
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 } ;
 
 struct NTernaryExpr : public NExpression{
@@ -200,9 +178,7 @@ struct NTernaryExpr : public NExpression{
     NTernaryExpr(NExpression* cond, NExpression* yes, NExpression* no)
     : cond(cond), yes(yes), no(no)
     {}
-    virtual std::ostream& operator<< (std::ostream& os) {
-        return os;
-    }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */

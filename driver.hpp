@@ -64,7 +64,7 @@ public:
     NodeKeeper& nodeKeeper;
     std::string file;
     const std::string& str;       
-    int result;
+    NNode* result;
 
     DeclarationContext scopes;
 

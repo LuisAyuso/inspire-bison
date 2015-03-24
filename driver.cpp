@@ -3,7 +3,7 @@
 #include "parser.hpp"
 
 calcxx_driver::calcxx_driver (const std::string &f, NodeKeeper& nk)
-  : scanner( new scanner_string(this, f)),  nodeKeeper(nk), file("no-file"), str(f)
+  : scanner( new scanner_string(this, f)),  nodeKeeper(nk), file("no-file"), str(f), result(nullptr)
 {
 }
 

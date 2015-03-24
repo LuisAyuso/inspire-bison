@@ -6,6 +6,10 @@ void test(const std::string& x){
     NodeKeeper nk;
     calcxx_driver driver(x, nk);
     driver.parse();
+    if (driver.result) driver.result->print(std::cout, "| ");
+    else std::cout << "ERROR";
+
+    std::cout << "\n======================" << std::endl;
 }
 
 int main (int argc, char *argv[])
@@ -31,6 +35,7 @@ int main (int argc, char *argv[])
 
     test("for () { abc/45.6; }");
     test("for (int a = 0 .. 45) { abc/45.6; }");
+    test("for (int a = 0 .. 45)  abc/45.6; ");
     test("for (int a = .. 45) { abc/45.6; }");
     test("for (int a  8.. 45) { abc/45.6; }");
     test("for (int a =   8.. ) { abc/45.6; }");

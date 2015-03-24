@@ -84,7 +84,7 @@ class calcxx_driver;
 %type  <NType*> type 
 %type  <NExpression*> expression unary_expression binary_expression ternary_expression
 %type  <std::vector<NExpression*> > expr_list
-%type  <std::vector<NStatement*> > statement_list
+%type  <std::vector<NStatement*> > statement_list decl_ctx
 %type  <std::vector<NType*> > type_list
 %type  <std::string> "Number" 
 %type  <std::string> "indentifier" 
@@ -94,7 +94,7 @@ class calcxx_driver;
 %%
 
 %start program;
-program : statement { $$ = $1; }
+program : statement { driver.result = $1; }
         ;
 
 type : IDENTIFIER { $$ = driver.nodeKeeper.getNode<NLitType>($1); }
@@ -111,18 +111,25 @@ type_list : /* empty */ { }
 let_binding : "let" IDENTIFIER "=" type { driver.scopes.add_symb($2, $4); }
             ;
 
-statement : let_binding ";" { } /* a let binding is not a stmt, but we can find them in the same places :D */
-          | compound_statement { std::swap($$, $1); }   
+let_list : let_binding {} 
+         | let_list let_binding {}
+         ;
+
+statement : compound_statement { std::swap($$, $1); }   
           | "for" "(" type IDENTIFIER "=" expression ".." expression  ")" statement { $$ = driver.nodeKeeper.getNode<NForLoop>($3, driver.nodeKeeper.getNode<NSynbolExpr>($4),$6,$8,$10); }
           | "while" "(" expression ")"  statement { $$ = driver.nodeKeeper.getNode<NWhileLoop>($3,$5); }
           | expression ";" { $$ = $1; }
           ;
 
-compound_statement : "{" statement_list "}" { driver.scopes.close_scope(); $$ = driver.nodeKeeper.getNode<NCompound>($2); }
+compound_statement : "{" "}" { $$ = driver.nodeKeeper.getNode<NCompound>(); } 
+                   | "{" decl_ctx "}" { driver.scopes.close_scope(); $$ = driver.nodeKeeper.getNode<NCompound>($2); }
                    ;
 
-statement_list : /* empty */ { driver.scopes.open_scope(); }
-               | statement   { driver.scopes.open_scope(); $$.push_back($1); }
+decl_ctx : let_list statement_list { std::swap($$, $2); }
+         | statement_list { std::swap($$, $1); }
+         ;
+
+statement_list : statement   { driver.scopes.open_scope(); $$.push_back($1); }
                | statement_list statement { $1.push_back($2); std::swap($$, $1); }
                ;
 
