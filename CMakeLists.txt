@@ -33,29 +33,34 @@ IF(BISON_FOUND)
            -o ${BISON_O_FILE}
           ${BISON_INPUT} 
       COMMENT "Generating parser.cpp"
+      DEPENDS ${BISON_INPUT}
       OUTPUT ${BISON_OUTPUT}
-    )
+)
 ENDIF(BISON_FOUND)
 
 #################################### FLEX ##################################################
 
 FIND_PACKAGE(FLEX 2.5 REQUIRED)
 IF(FLEX_FOUND)
-        set(FLEX_INPUT ${CMAKE_SOURCE_DIR}/src/scanner.l)
-        set(FLEX_OUTPUT ${CMAKE_BINARY_DIR}/scanner.cpp)
 
-        ADD_CUSTOM_COMMAND(
-          SOURCE ${FLEX_INPUT}
-          COMMAND ${FLEX_EXECUTABLE}
-          ARGS -o ${FLEX_OUTPUT}
-              ${FLEX_INPUT} 
-          COMMENT "Generating scanner.cpp"
-          OUTPUT ${FLEX_OUTPUT}
-    )
+    set(FLEX_INPUT ${CMAKE_SOURCE_DIR}/src/scanner.l)
+    set(FLEX_OUTPUT ${CMAKE_BINARY_DIR}/scanner.cpp)
+
+    ADD_CUSTOM_COMMAND(
+      SOURCE ${FLEX_INPUT}
+      COMMAND ${FLEX_EXECUTABLE}
+      ARGS -o ${FLEX_OUTPUT}
+          ${FLEX_INPUT} 
+      COMMENT "Generating scanner.cpp"
+      DEPENDS ${FLEX_INPUT}
+      OUTPUT ${FLEX_OUTPUT}
+)
 ENDIF(FLEX_FOUND)
+
+######################################################################################
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${BISON_OUTPUT_PATH})
 include_directories(${FLEX_OUTPUT_PATH})
 add_executable(exec ${main} ${inspire_parser_srcs} ${inspire_parser_incs} ${BISON_OUTPUT} ${FLEX_OUTPUT} ) 
-
+add_dependencies(exec inspire_scanner)
