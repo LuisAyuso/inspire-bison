@@ -80,7 +80,7 @@ class calcxx_driver;
 %token <std::string> INTEGER "integer"
 %token <std::string> REAL "real"
 
-%type  <NStatement*> program statement compound_statement
+%type  <NStatement*> program statement compound_statement 
 %type  <NType*> type 
 %type  <NExpression*> expression unary_expression binary_expression ternary_expression
 %type  <std::vector<NExpression*> > expr_list
@@ -101,27 +101,29 @@ type : IDENTIFIER { $$ = driver.nodeKeeper.getNode<NLitType>($1); }
      | INTEGER { $$ = driver.nodeKeeper.getNode<NIntTypeParam>($1); }
      | IDENTIFIER "<" type_list ">" { $$ = driver.nodeKeeper.getNode<NComposedType>($1, $3); }
      | "(" type_list ")" "->" type { $$ = driver.nodeKeeper.getNode<NFuncType>($2, $5); }
+     ;
 
 type_list : /* empty */ { }
           | type  { $$.push_back($1); }
           | type_list "," type  { $1.push_back($3); }
+          ;
 
 let_binding : "let" IDENTIFIER "=" type { driver.scopes.add_symb($2, $4); }
             ;
 
-statement : compound_statement { std::swap($$, $1); }   
-          | let_binding { }  /* a let binding is not a stmt, but we can find them in the same places :D */
+statement : let_binding ";" { } /* a let binding is not a stmt, but we can find them in the same places :D */
+          | compound_statement { std::swap($$, $1); }   
           | "for" "(" type IDENTIFIER "=" expression ".." expression  ")" statement { $$ = driver.nodeKeeper.getNode<NForLoop>($3, driver.nodeKeeper.getNode<NSynbolExpr>($4),$6,$8,$10); }
           | "while" "(" expression ")"  statement { $$ = driver.nodeKeeper.getNode<NWhileLoop>($3,$5); }
           | expression ";" { $$ = $1; }
           ;
 
-
 compound_statement : "{" statement_list "}" { driver.scopes.close_scope(); $$ = driver.nodeKeeper.getNode<NCompound>($2); }
+                   ;
 
 statement_list : /* empty */ { driver.scopes.open_scope(); }
                | statement   { driver.scopes.open_scope(); $$.push_back($1); }
-               | statement_list ";" statement { $1.push_back($3); std::swap($$, $1); }
+               | statement_list statement { $1.push_back($2); std::swap($$, $1); }
                ;
 
 expression : IDENTIFIER { $$ = driver.nodeKeeper.getNode<NSynbolExpr>($1); }

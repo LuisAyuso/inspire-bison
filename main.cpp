@@ -46,6 +46,10 @@ int main (int argc, char *argv[])
     test("let cacafuti = 5");
     test("let cacafuti = int<5>");
 
+    test("{{}{}}");
+    test("{{}{}");
+    test("{{let x = int;}{ let y = j;}}");
+
     // fail
     test("while (wer) abc/45.6 ");
     test("1abs;");
