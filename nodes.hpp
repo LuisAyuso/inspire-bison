@@ -33,6 +33,7 @@ public:
     }
 };
 
+
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 struct NType : public NNode{
@@ -72,13 +73,22 @@ struct NFuncType : public NType{
     { }
     virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
+struct NClosureType : public NType{
+    std::vector<NType*> tparams;
+    NType* ret;
+    NClosureType(const std::vector<NType*>& tparams, NType* ret)
+    :tparams(tparams), ret(ret)
+    { }
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
+};
+
 
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 enum op_code{
-    SUM, SUB, MUL, DIV, DEREF, NOT, MOD, MINUS, SUBSCRIPT, MEMBACCESS
+    SUM, SUB, MUL, DIV, DEREF, NOT, MOD, MINUS, SUBSCRIPT, MEMBACCESS, ASSIGN
 };
 std::ostream& operator<< (std::ostream& out, const op_code& code);
 
@@ -88,6 +98,21 @@ class NSynbolExpr;
 struct NStatement : public NNode{
     virtual std::ostream& print (std::ostream& , const std::string& prefix) const =0;
     virtual ~NStatement (){}
+};
+
+struct NVariableDecl : public NStatement{
+
+    NType* type;
+    std::string name;
+    NExpression* initialization;
+
+    NVariableDecl( NType* type, const std::string& name)
+    : type(type), name(name), initialization(nullptr)
+    {}
+    NVariableDecl( NType* type, const std::string& name, NExpression* initialization)
+    : type(type), name(name), initialization(initialization)
+    {}
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix)const;
 };
 
 struct NWhileLoop : public NStatement{
@@ -178,6 +203,18 @@ struct NTernaryExpr : public NExpression{
     NTernaryExpr(NExpression* cond, NExpression* yes, NExpression* no)
     : cond(cond), yes(yes), no(no)
     {}
+    virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
+};
+
+struct NLambdaExpression : public NExpression{
+
+    NType* retTy;
+    std::vector<NVariableDecl*> paramList;
+    NCompound* body;
+
+    NLambdaExpression( NType* retTy, const std::vector<NVariableDecl*>& paramList, NCompound* body)
+    : retTy(retTy), paramList(paramList), body(body)
+    { }
     virtual std::ostream& print (std::ostream& os, const std::string& prefix) const;
 };
 

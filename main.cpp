@@ -26,6 +26,8 @@ int main (int argc, char *argv[])
     test("46?  abc: cde;");
     test("90.0;");
     test("a * *abc;");
+    test("3.4 + 5 / 67 * 98 + 3;");
+    test("3.4 + * 5 / -67 * 98 + 3;");
 
     test("f();");
     test("ftg(2,4,a);");
@@ -48,8 +50,8 @@ int main (int argc, char *argv[])
     test("while () { abc/45.6; }");
     test("while (6) abc/45.6; ");
 
-    test("let cacafuti = 5");
-    test("let cacafuti = int<5>");
+    test("let cacafuti = 5 ;");
+    test("let cacafuti = int<5> ;");
 
     test("{{}{}}");
     test("{{}{}");
@@ -62,6 +64,8 @@ int main (int argc, char *argv[])
     test("46 / 6 +;");
     test("abc abc;");
     test("f(43)?  2abc/45.6: 9*4 +3;");
+
+
   return 0;
 }
 
